@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Seth Duda
+Copyright (c) 2016 Seth Duda; edit by V1irus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -18,15 +18,14 @@ ASL_ROPE_INIT = true;
 
 diag_log "Advanced Sling Loading Loading...";
 
-ASL_Rope_Get_Lift_Capability = {
-	params ["_vehicle"];
-	private ["_slingLoadMaxCargoMass"];
-	_slingLoadMaxCargoMass = getNumber (configFile >> "CfgVehicles" >> typeOf _vehicle >> "slingLoadMaxCargoMass");
-	if(_slingLoadMaxCargoMass <= 0) then {
-		_slingLoadMaxCargoMass = 4000;
+	ASL_Rope_Get_Lift_Capability = {
+		params ["_vehicle"];
+		private _slingLoadMaxCargoMass = getNumber (configFile >> "CfgVehicles" >> typeOf _vehicle >> "slingLoadMaxCargoMass");
+		if (_slingLoadMaxCargoMass <= 0) then {
+			_slingLoadMaxCargoMass = 12000;
+		};
+		_slingLoadMaxCargoMass
 	};
-	_slingLoadMaxCargoMass;	
-};
 
 ASL_SLING_LOAD_POINT_CLASS_HEIGHT_OFFSET = [  
 	["All", [-0.05, -0.05, -0.05]],  
@@ -124,7 +123,7 @@ ASL_Rope_Adjust_Mass = {
 	private ["_mass","_lift","_originalMass","_heavyLiftMinLift"];
 	_lift = [_heli] call ASL_Rope_Get_Lift_Capability;
 	_originalMass = getMass _obj;
-	_heavyLiftMinLift = missionNamespace getVariable ["ASL_HEAVY_LIFTING_MIN_LIFT_OVERRIDE",5000];
+	_heavyLiftMinLift = missionNamespace getVariable ["ASL_HEAVY_LIFTING_MIN_LIFT_OVERRIDE",0];
 	if( _originalMass >= ((_lift)*0.8) && _lift >= _heavyLiftMinLift ) then {
 		private ["_originalMassSet","_ends","_endDistance","_ropeLength"];
 		_originalMassSet = (getMass _obj) == _originalMass;
@@ -761,7 +760,7 @@ ASL_Attach_Ropes = {
 					_allCargo = _vehicle getVariable ["ASL_Cargo",[]];
 					_allCargo set [(_vehicleWithIndex select 1),_cargo];
 					_vehicle setVariable ["ASL_Cargo",_allCargo, true];
-					if(missionNamespace getVariable ["ASL_HEAVY_LIFTING_ENABLED",true]) then {
+					if(_vehicle getVariable ["ASL_HEAVY_LIFTING_ENABLED",true]) then {
 						[_cargo, _vehicle, _ropes] spawn ASL_Rope_Adjust_Mass;		
 					};				
 				};
